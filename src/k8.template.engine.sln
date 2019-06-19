@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.202
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "k8.Template.Engine.Test", "k8.Template.Engine.Test\k8.Template.Engine.Test.csproj", "{FFB2199A-0D4B-4766-937D-DC95C34174A5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "k8.Template.Engine", "k8.Template.Engine\k8.Template.Engine.csproj", "{933115E1-C04A-4B21-966C-0EA63874F522}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FFB2199A-0D4B-4766-937D-DC95C34174A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FFB2199A-0D4B-4766-937D-DC95C34174A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FFB2199A-0D4B-4766-937D-DC95C34174A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FFB2199A-0D4B-4766-937D-DC95C34174A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{933115E1-C04A-4B21-966C-0EA63874F522}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{933115E1-C04A-4B21-966C-0EA63874F522}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{933115E1-C04A-4B21-966C-0EA63874F522}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{933115E1-C04A-4B21-966C-0EA63874F522}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {57AED00E-F5FD-44CC-BDE0-E4DAC7517F8D}
+	EndGlobalSection
+EndGlobal

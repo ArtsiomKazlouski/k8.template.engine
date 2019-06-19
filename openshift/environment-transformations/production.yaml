@@ -1,0 +1,2 @@
+"@jdt.remove":
+- "@jdt.path": "$.resources[?(@.id == 'web-api')]"

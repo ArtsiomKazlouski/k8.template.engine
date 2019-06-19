@@ -1,0 +1,7 @@
+spec:
+  tls:
+    caCertificate: "%{CA}"
+    certificate: "%{CERTIFICATE}"
+    key: "%{KEY}"
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

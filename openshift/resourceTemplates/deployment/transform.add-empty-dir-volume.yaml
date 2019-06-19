@@ -1,0 +1,11 @@
+"@jdt.merge":
+  - "@jdt.path" : "$.spec.template.spec.containers[*]"
+    "@jdt.value":
+      volumeMounts:
+        - mountPath: "%{MOUNT_PATH}"
+          name: "%{NAME}"
+  - "@jdt.path" : "$.spec.template.spec"
+    "@jdt.value":
+      volumes:
+        - name: "%{NAME}"
+          emptyDir: {}

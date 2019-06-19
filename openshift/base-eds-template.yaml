@@ -1,0 +1,94 @@
+name: template
+resources:
+- template: secrets/database-secret
+  params:
+    SECRET-NAME: postgresql
+    HOST: "${DATABASE_APP_NAME}"
+    DATABASE_NAME: "${DATABASE_NAME}"
+    USER_NAME: "${DATABASE_USER_NAME}"
+    PASSWORD: "${DATABASE_USER_PASSWORD}"
+- template: volumeclaim/persistent-volume-claim
+  params:
+    NAME: postgresql
+    DATABASE_SIZE_STORAGE: "${DATABASE_SIZE_STORAGE}"
+- template: deployment/postgres
+  params:
+    APP_NAME: ${DATABASE_APP_NAME}
+    DATABASE_SECRET_NAME: postgresql
+    CLAIM_NAME: postgresql
+  transforms:
+  - template: deployment/transform.set-resource-limit
+    params:
+      REQUEST_CPU: 100m
+      LIMIT_CPU: 200m
+      REQUEST_MEMORY: 512Mi
+      LIMIT_MEMORY: 1Gi
+- template: service/service
+  params:
+    SELECTOR: ${DATABASE_APP_NAME}
+    PORT: 5432
+  transforms:
+  - template: service/transform.add-node-port
+- id: web-api
+  template: deployment/base-app
+  params:
+    APP-NAME: "${WEB_API_NAME}"
+    IMAGE: "${WEB_API_IMAGE}"
+  transforms:
+  - template: deployment/transform.add-health-check
+  - template: deployment/transform.add-config-map-volume
+    params:
+      NAME: volume-ssl-cert
+      CONFIG_MAP_NAME: "${KAFKA_SSL_CONFIG_MAP_NAME}"
+      MOUNT_PATH: "${KAFKA_SSL_CERTIFICATES_DIRECTORY}"
+  - template: deployment/transform.set-resource-limit
+    params:
+      REQUEST_CPU: 300m
+      LIMIT_CPU: 800m
+      REQUEST_MEMORY: 1Gi
+      LIMIT_MEMORY: 2Gi
+- template: service/service
+  params:
+    SELECTOR: ${WEB_API_NAME}
+    PORT: 8080
+- id: web-app
+  template: deployment/base-app
+  params:
+    APP-NAME: "${WEB_APP_NAME}"
+    IMAGE: "${WEB_APP_IMAGE}"
+  transforms:
+  - template: deployment/transform.add-health-check
+  - template: deployment/transform.set-resource-limit
+    params:
+      REQUEST_CPU: 500m
+      LIMIT_CPU: 1
+      REQUEST_MEMORY: 512Mi
+      LIMIT_MEMORY: 2Gi
+- template: service/service
+  params:
+    SELECTOR: ${WEB_APP_NAME}
+    PORT: 8080
+- template: route/route
+  params:
+    ROUTE_NAME: ${WEB_APP_NAME}
+    ROUTE_ADDRESS: ${WEB_APP_ROUTE_ADDRESS}
+    SERVICE_NAME: ${WEB_APP_NAME}
+  transforms:
+  - template: route/transform.add-tls
+    params:
+      CA: ${CA}
+      CERTIFICATE: ${CERTIFICATE}
+      KEY: ${KEY}
+
+parameters:
+- name: HOSTING_ENVIRONMENT
+  displayName: Configure for environmnent
+  description: ASPNETCORE_ENVIRONMENT variable value for application
+  required: true
+  value: Production
+
+- name: WEB_APP_NAME
+  displayName: application name
+  description: application name
+  required: true
+  value: web-app

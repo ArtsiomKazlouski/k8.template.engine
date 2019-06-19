@@ -1,0 +1,10 @@
+"@jdt.merge":
+  - "@jdt.path" : "$.spec.template.spec.containers[*]"
+    "@jdt.value":
+      resources:
+        requests:
+          cpu: "%{REQUEST_CPU}"
+          memory: "%{REQUEST_MEMORY}"
+        limits:
+          cpu: "%{LIMIT_CPU}"
+          memory: "%{LIMIT_MEMORY}"

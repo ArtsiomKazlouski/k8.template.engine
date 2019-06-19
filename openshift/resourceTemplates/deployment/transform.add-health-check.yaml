@@ -1,0 +1,13 @@
+"@jdt.merge":
+  - "@jdt.path" : "$.spec.template.spec.containers[*]"
+    "@jdt.value":
+      livenessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /health
+          port: 8080
+          scheme: HTTP
+        initialDelaySeconds: 30
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 5
