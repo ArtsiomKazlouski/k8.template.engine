@@ -1,1 +1,7 @@
-name: template
+"@jdt.merge":
+- "@jdt.path": "$.resources[?(@.template =~ /deployment.*/)]"
+  "@jdt.value":
+    transforms:
+      template: deployment/transform.set-node-selector-location
+      params:
+        REGION: ${REGION}
