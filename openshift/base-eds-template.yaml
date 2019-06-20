@@ -92,3 +92,7 @@ parameters:
   description: application name
   required: true
   value: web-app
+
+- name: DATABASE_USER_PASSWORD
+  value: database
+

@@ -87,7 +87,7 @@ namespace k8.Template.Engine
                 }
 
                 var nonProvidedParameters = allRequiredParameters
-                    .Where(t=> config.Parameters.All(p => p.name != t))
+                    .Where(t=> config.Parameters.All(p => $"${{{p.name}}}" != t))
                     .Distinct()
                     .ToList();
 
