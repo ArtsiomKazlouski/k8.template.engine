@@ -14,14 +14,12 @@ namespace k8.Template.Engine
 {
     public class OpenshiftTemplateBuilder
     {
-        private readonly BuilderConfig _config;
         private readonly DirectoryInfo _generationRootFolder;
         private readonly FileInfo _templateFile;
         private readonly DirectoryInfo _environmentsOverridesFolder;
 
         public OpenshiftTemplateBuilder(BuilderConfig config)
         {
-            _config = config;
             _generationRootFolder = new DirectoryInfo(config.GenerationRootFolder);
             _environmentsOverridesFolder = new DirectoryInfo(Path.Combine(_generationRootFolder.FullName, config.EnvironmentsOverridesFolder));
             var templateFile = Path.Combine(_generationRootFolder.FullName, config.TemplateFileName);
@@ -77,15 +75,35 @@ namespace k8.Template.Engine
                 }
 
                 var generatedTemplate = BuildTemplate(resources, config.Parameters);
+
+                //validate parameters
+                
+                var allRequiredParameters = new List<string>();
+                foreach (var resource in resources)
+                {
+                    string pattern = @"\${[^\{\}]+\}";
+                    var matches = Regex.Matches(resource, pattern, RegexOptions.None);
+                    allRequiredParameters.AddRange(matches.Select(t=>t.Value));
+                }
+
+                var nonProvidedParameters = allRequiredParameters
+                    .Where(t=> config.Parameters.All(p => p.name != t))
+                    .Distinct()
+                    .ToList();
+
+                if (nonProvidedParameters.Any())
+                {
+                    var listParameters = string.Join(", ", nonProvidedParameters);
+                    throw new Exception($"Template generation error, parameters aren't provided: {listParameters}");
+                }
+
                 result.Add(new GenerationResult()
                 {
                     EnvName = Path.GetFileNameWithoutExtension(environmentsTemplate.Key),
                     Template = generatedTemplate
                 });
             }
-
-            //validate templates
-
+            
             return result;
         }
 
@@ -137,7 +155,7 @@ namespace k8.Template.Engine
 
             string pattern = @"\%{[^\{\}]+\}";
             
-            var matches = Regex.Matches(result, pattern, RegexOptions.IgnoreCase);
+            var matches = Regex.Matches(result, pattern, RegexOptions.None);
             if (matches.Any())
             {
                 var parameters = matches.Select(t => t.Value);
