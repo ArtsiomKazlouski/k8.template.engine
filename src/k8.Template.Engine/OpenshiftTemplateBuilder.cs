@@ -173,7 +173,6 @@ namespace k8.Template.Engine
             template.parameters = new List<object>(parameters);
 
             var serializer = new SerializerBuilder()
-                .WithEventEmitter(nextEmitter => new QuoteSurroundingEventEmitter(nextEmitter))
                 .Build();
             return serializer.Serialize(template);
         }
