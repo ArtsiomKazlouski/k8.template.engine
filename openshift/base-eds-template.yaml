@@ -11,7 +11,8 @@ resources:
   params:
     NAME: postgresql
     DATABASE_SIZE_STORAGE: "${DATABASE_SIZE_STORAGE}"
-- template: deployment/postgres
+- id: database
+  template: deployment/postgres
   params:
     APP_NAME: ${DATABASE_APP_NAME}
     DATABASE_SECRET_NAME: postgresql
@@ -92,3 +93,7 @@ parameters:
   description: application name
   required: true
   value: web-app
+
+- name: DATABASE_USER_PASSWORD
+  value: database
+

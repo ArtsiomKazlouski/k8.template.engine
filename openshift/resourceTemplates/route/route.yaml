@@ -7,9 +7,9 @@ metadata:
 spec:
   host: "%{ROUTE_ADDRESS}"
   port:
-    targetPort: "%{SERIVCE_NAME}"
+    targetPort: "%{SERVICE_NAME}"
   to:
     kind: Service
-    name: "%{SERIVCE_NAME}"
+    name: "%{SERVICE_NAME}"
     weight: 100
   wildcardPolicy: None

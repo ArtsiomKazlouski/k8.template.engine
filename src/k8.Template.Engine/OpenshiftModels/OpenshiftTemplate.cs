@@ -6,7 +6,7 @@ namespace k8.Template.Engine.OpenshiftModels
     {
         public string apiVersion { get; set; } = "v1";
 
-        public string kind { get; set; } = "template";
+        public string kind { get; set; } = "Template";
 
         public Metadata metadata { get; set; } = new Metadata();
 

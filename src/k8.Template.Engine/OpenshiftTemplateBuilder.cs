@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using k8.Template.Engine.OpenshiftModels;
 using k8.Template.Engine.TemplatingConfigsModels;
 using Newtonsoft.Json;
@@ -35,7 +36,6 @@ namespace k8.Template.Engine
             {
                 var templateTransform = ReadFileAsJson(file.FullName);
 
-
                 try
                 {
                     var envTemplate = templateFile.ApplyTransform(templateTransform);
@@ -63,7 +63,7 @@ namespace k8.Template.Engine
                     {
                         try
                         {
-                            template = template.ApplyTransform(PrepareTransform(transform));
+                            template = template.ApplyTransform(PrepareTemplate(transform));
                         }
                         catch (Exception e)
                         {
@@ -75,39 +75,39 @@ namespace k8.Template.Engine
                 }
 
                 var generatedTemplate = BuildTemplate(resources, config.Parameters);
+
+                //validate parameters
+                
+                var allRequiredParameters = new List<string>();
+                foreach (var resource in resources)
+                {
+                    string pattern = @"\${[^\{\}]+\}";
+                    var matches = Regex.Matches(resource, pattern, RegexOptions.None);
+                    allRequiredParameters.AddRange(matches.Select(t=>t.Value));
+                }
+
+                var nonProvidedParameters = allRequiredParameters
+                    .Where(t=> config.Parameters.All(p => $"${{{p.name}}}" != t))
+                    .Distinct()
+                    .ToList();
+
+                if (nonProvidedParameters.Any())
+                {
+                    var listParameters = string.Join(", ", nonProvidedParameters);
+                    throw new Exception($"Template generation error, parameters aren't provided: {listParameters}");
+                }
+
                 result.Add(new GenerationResult()
                 {
                     EnvName = Path.GetFileNameWithoutExtension(environmentsTemplate.Key),
                     Template = generatedTemplate
                 });
             }
-
-            //validate templates
-
+            
             return result;
         }
 
-        public string PrepareTransform(Transform transform)
-        {
-            var segments = new List<string>()
-            {
-                _generationRootFolder.FullName,
-                "resourceTemplates",
-            };
-
-            var subSegments = transform.Template.Split('/', StringSplitOptions.RemoveEmptyEntries);
-            segments.AddRange(subSegments.Take(subSegments.Length - 1));
-            segments.Add(subSegments.Last() + ".yaml");
-
-            var transformPath = Path.Combine(segments.ToArray());
-            
-
-            var transformContent = ReadFileAsJson(transformPath);
-
-            return SubstituteParams(transformContent, transform.Params);
-        }
-
-        public string PrepareTemplate(ResourceSpec resource)
+        public string PrepareTemplate(ResourceTemplate resource)
         {
             var segments = new List<string>()
             {
@@ -123,7 +123,14 @@ namespace k8.Template.Engine
 
             var template = ReadFileAsJson(templatePath);
 
-            return SubstituteParams(template, resource.Params);
+            try
+            {
+                return SubstituteParams(template, resource.Params);
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Can't substitute params in template: {resource.Template}", e);
+            }
         }
 
         private string ReadFileAsJson(string filePath)
@@ -146,9 +153,17 @@ namespace k8.Template.Engine
                 result = result.Replace($"%{{{replacement.Key.ToUpper()}}}", replacement.Value);
             }
 
+            string pattern = @"\%{[^\{\}]+\}";
+            
+            var matches = Regex.Matches(result, pattern, RegexOptions.None);
+            if (matches.Any())
+            {
+                var parameters = matches.Select(t => t.Value);
+                var listParameters = string.Join(", ", parameters); 
+                throw new Exception($"Template parameters substitution error, parameters don't exist: {listParameters}");
+            }
+            
             return result;
-
-            //TODO test for not replaced parameters
         }
 
         private string BuildTemplate(List<string> resources, List<Parameter> parameters)
@@ -172,12 +187,5 @@ namespace k8.Template.Engine
             }
         }
 
-    }
-
-    public class BuilderConfig
-    {
-        public string GenerationRootFolder { get; set; }
-        public string EnvironmentsOverridesFolder { get; set; }
-        public string TemplateFileName { get; set; }
     }
 }
