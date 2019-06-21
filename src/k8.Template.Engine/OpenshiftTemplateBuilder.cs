@@ -157,7 +157,9 @@ namespace k8.Template.Engine
             template.objects = new List<object>(GetResources(resources));
             template.parameters = new List<object>(parameters);
 
-            var serializer = new SerializerBuilder().Build();
+            var serializer = new SerializerBuilder()
+                .WithEventEmitter(nextEmitter => new QuoteSurroundingEventEmitter(nextEmitter))
+                .Build();
             return serializer.Serialize(template);
         }
 
